@@ -1,6 +1,6 @@
 import { FaTrash, FaCheck } from "react-icons/fa";
 
-const TaskCard = ({ task, onDelete, onComplete }) => {
+const TaskCard = ({ task, onDelete, onToggle }) => {
   const isDone = task.status === "completed";
 
   return (
@@ -8,7 +8,6 @@ const TaskCard = ({ task, onDelete, onComplete }) => {
       className={`p-5 rounded-2xl border shadow-sm transition hover:shadow-lg backdrop-blur
       ${isDone ? "bg-green-50/60" : "bg-white/80"}`}
     >
-
       {/* Title */}
       <h3
         className={`font-bold text-lg ${
@@ -28,29 +27,28 @@ const TaskCard = ({ task, onDelete, onComplete }) => {
 
         {/* Status */}
         <span
-          className={`text-xs px-3 py-1 rounded-full font-semibold transition
-            ${
-              isDone
-                ? "bg-green-200 text-green-800"
-                : "bg-yellow-200 text-yellow-800"
-            }`}
+          className={`text-xs px-3 py-1 rounded-full font-semibold ${
+            isDone
+              ? "bg-green-200 text-green-800"
+              : "bg-yellow-200 text-yellow-800"
+          }`}
         >
-          {isDone ? "✔ Done" : "⏳ Pending"}
+          {isDone ? "✔ Completed" : "⏳ Pending"}
         </span>
 
         {/* Buttons */}
         <div className="flex gap-2">
 
-          {/* Complete */}
+          {/* Toggle Button */}
           <button
-            onClick={() => onComplete(task._id)}
-            disabled={isDone}
-            className={`p-2 rounded-lg transition
-              ${
-                isDone
-                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                  : "bg-green-500 hover:bg-green-600 text-white"
-              }`}
+            onClick={() =>
+              onToggle(task._id, isDone ? "pending" : "completed")
+            }
+            className={`p-2 rounded-lg text-white transition ${
+              isDone
+                ? "bg-yellow-500 hover:bg-yellow-600"
+                : "bg-green-500 hover:bg-green-600"
+            }`}
           >
             <FaCheck />
           </button>
@@ -58,7 +56,7 @@ const TaskCard = ({ task, onDelete, onComplete }) => {
           {/* Delete */}
           <button
             onClick={() => onDelete(task._id)}
-            className="p-2 rounded-lg bg-red-500 hover:bg-red-600 text-white transition hover:scale-105"
+            className="p-2 rounded-lg bg-red-500 hover:bg-red-600 text-white transition"
           >
             <FaTrash />
           </button>

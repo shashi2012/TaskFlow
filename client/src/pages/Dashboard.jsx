@@ -23,6 +23,7 @@ const Dashboard = () => {
     pending: 0,
   });
 
+  // FETCH TASKS
   const fetchTasks = async () => {
     try {
       const { data } = await API.get(
@@ -32,15 +33,8 @@ const Dashboard = () => {
       setTasks(data.tasks);
       setPages(data.pages);
 
-      const completed = data.tasks.filter(
-        (task) => task.status === "completed"
-      ).length;
-
-      setStats({
-        total: data.totalTasks,
-        completed,
-        pending: data.totalTasks - completed,
-      });
+      // USE BACKEND STATS (IMPORTANT FIX)
+      setStats(data.stats);
     } catch (error) {
       console.log(error);
     }
@@ -50,6 +44,7 @@ const Dashboard = () => {
     fetchTasks();
   }, [search, status, page]);
 
+  // CREATE TASK
   const createTask = async (e) => {
     e.preventDefault();
 
@@ -65,6 +60,7 @@ const Dashboard = () => {
 
       setTitle("");
       setDescription("");
+      setPage(1);
 
       fetchTasks();
     } catch (error) {
@@ -74,6 +70,7 @@ const Dashboard = () => {
     }
   };
 
+  // DELETE TASK
   const deleteTask = async (id) => {
     try {
       await API.delete(`/tasks/${id}`);
@@ -83,10 +80,11 @@ const Dashboard = () => {
     }
   };
 
-  const completeTask = async (id) => {
+  // TOGGLE STATUS (IMPORTANT FIX)
+  const toggleTask = async (id, status) => {
     try {
       await API.put(`/tasks/${id}`, {
-        status: "completed",
+        status,
       });
 
       fetchTasks();
@@ -116,30 +114,21 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
 
           <div className="bg-white/80 backdrop-blur rounded-2xl p-5 shadow border">
-            <p className="text-gray-500 text-sm">
-              Total Tasks
-            </p>
-
+            <p className="text-gray-500 text-sm">Total Tasks</p>
             <h2 className="text-3xl font-bold text-indigo-600">
               {stats.total}
             </h2>
           </div>
 
           <div className="bg-white/80 backdrop-blur rounded-2xl p-5 shadow border">
-            <p className="text-gray-500 text-sm">
-              Completed
-            </p>
-
+            <p className="text-gray-500 text-sm">Completed</p>
             <h2 className="text-3xl font-bold text-green-600">
               {stats.completed}
             </h2>
           </div>
 
           <div className="bg-white/80 backdrop-blur rounded-2xl p-5 shadow border">
-            <p className="text-gray-500 text-sm">
-              Pending
-            </p>
-
+            <p className="text-gray-500 text-sm">Pending</p>
             <h2 className="text-3xl font-bold text-orange-500">
               {stats.pending}
             </h2>
@@ -177,7 +166,6 @@ const Dashboard = () => {
             </select>
 
           </div>
-
         </div>
 
         {/* TASKS */}
@@ -189,9 +177,7 @@ const Dashboard = () => {
 
           {tasks.length === 0 ? (
             <div className="bg-white rounded-2xl p-10 text-center shadow border">
-              <p className="text-gray-500">
-                No tasks found 🚀
-              </p>
+              <p className="text-gray-500">No tasks found 🚀</p>
             </div>
           ) : (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -200,7 +186,7 @@ const Dashboard = () => {
                   key={task._id}
                   task={task}
                   onDelete={deleteTask}
-                  onComplete={completeTask}
+                  onToggle={toggleTask}
                 />
               ))}
             </div>
@@ -259,9 +245,7 @@ const Dashboard = () => {
               type="text"
               placeholder="Description"
               value={description}
-              onChange={(e) =>
-                setDescription(e.target.value)
-              }
+              onChange={(e) => setDescription(e.target.value)}
               className="flex-1 border rounded-xl p-3 outline-none focus:ring-2 focus:ring-indigo-500"
             />
 
